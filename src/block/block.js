@@ -11,14 +11,17 @@ import './editor.scss';
 
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
-// const TextControl = wp.components.TextControl;
+const TextControl = wp.components.TextControl;
 // const BlockControls = wp.blocks.BlockControls;
 // const AlignmentToolbar = wp.blocks.AlignmentToolbar;
-// const Dropdown = wp.components.Dropdown;
+const Dropdown = wp.components.Dropdown;
 // const PlainText = wp.blocks.PlainText;
 // const RichText = wp.blocks.PlainText;
 // const ColorPalette = wp.blocks.ColorPalette;
 // const SelectControl = wp.components.SelectControl;
+const DropZone = wp.components.DropZone;
+const MediaUpload = wp.blocks.MediaUpload;
+const Button = wp.components.Button;
 /**
  * Register: aa Gutenberg Block.
  *
@@ -37,6 +40,18 @@ let attributes = {
 	randomKey: {
 		type: 'string',
 		default: 'carousel'
+	},
+	interval: {
+		type: 'number',
+		default: '0'
+	},
+	indicators: {
+		type: 'boolean',
+		default: true
+	},
+	slides: {
+		type: 'array',
+		default: []
 	}
 };
 
@@ -61,22 +76,85 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 	edit: function({ attributes, setAttributes, focus, setFocus, isSelected, className }) {
 
 		if(attributes.randomKey === 'carousel') {
-			const randomKey = "carousel" + Math.floor(Math.random() * 1000);
+			const randomKey = "carousel-" + Math.floor(Math.random() * 1000);
 			setAttributes({randomKey: randomKey});
 		}
 
-		const addRemoveRow = (
-			<div style={{textAlign: 'right'}}>
-				{ __("Add Panel:") }&nbsp;
-				<button type="button" style={{display: 'inline-block'}} className="components-button components-icon-button" onClick={() => {
+		const addSlide = (
+			<MediaUpload
+				onSelect={ ( media ) => {
+					console.log( media )
+					let newSlides = []
+					media.forEach( upload => {
+						let newSlide = {
+							url: upload.url,
+							caption: upload.caption,
+							description: upload.description,
+							alt: upload.alt,
+							thumbnail: upload.sizes.thumbnail.url,
+							id: upload.id
+						}
+						newSlides.push(newSlide)
+					} )
+					setAttributes( { slides: attributes.slides.concat(newSlides) } )
+				} }
+				type="image"
+				multiple={true}
+				render={ ( { open } ) => (
+					<Button style={{padding: '0px', margin: '1px'}} onClick={ open }>
+						<div style={{height: '150px', width: '150px', borderRadius: '4px', border: '1px dashed #e2e4e7', color: "#e2e4e7"}}>
+							<div style={{position: "relative", top: "50%", transform: "translateY(-50%)"}}>
+								Add Slide
+							</div>
+						</div>
+					</Button>
+				) }
+			/>
+		)
 
-				}}><span className="dashicons dashicons-plus"></span></button>
+		const thumbnail = (slide, i) => {
+			return (
+				<MediaUpload
+					media={ slide.id }
+					onSelect={ ( media ) => {
+						let newSlides = [ ...attributes.slides ]
+						let newSlide = {
+							url: media.url,
+							caption: media.caption,
+							description: media.description,
+							alt: media.alt,
+							thumbnail: media.sizes.thumbnail.url
+						}
+						newSlides.splice(i, 1, newSlide)
+						setAttributes( { slides: newSlides } )
+					} }
+					type="image"
+					multiple={false}
+					render={ ( { open } ) => (
+						<Button style={{padding: '0px'}}>
+							<img src={slide.thumbnail} style={{margin: '1px', borderRadius: '4px'}} onClick={ open }/>
+						</Button>
+					) }
+				/>
+			)
+		}
+
+		const ThumbnailGallery = (
+			<div className="thumbnail-gallery" style={{display: 'flex', flexWrap: 'wrap',}}>
+				{
+					attributes.slides.map( (slide, i) => {
+						return (
+							thumbnail(slide, i)
+						)
+					})
+				}
+				{ addSlide }
 			</div>
-		);
+		)
 
 		return (
-				<div>
-					<div id="carousel-example-generic" className="carousel slide" data-ride="carousel">
+				<div className={className} id={attributes.randomKey}>
+					<div id="carousel-example-generic" className="carousel slide" data-ride="carousel" data-interval={attributes.interval}>
 
 					  <ol className="carousel-indicators" style={{left: '20%'}}>
 					    <li data-target="#carousel-example-generic" data-slide-to="0" className="active"></li>
@@ -106,6 +184,11 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					    <span className="sr-only">Next</span>
 					  </a>
 					</div>
+					{ focus ?
+						<div>
+							{ ThumbnailGallery }
+						</div>
+					: null }
 				</div>
 			)
 	},

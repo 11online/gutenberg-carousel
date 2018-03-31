@@ -9,7 +9,3 @@
  *
  * CSS for both Frontend+Backend.
  */
-.carousel-control:focus, .carousel-control:active {
-  outline: none !important;
-  -webkit-box-shadow: none !important;
-          box-shadow: none !important; }
