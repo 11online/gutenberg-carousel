@@ -112,6 +112,23 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 			/>
 		)
 
+		const thumbnailControls = (
+			<div className="stat-edit-buttons" style={{background: 'rgba(255,255,255,0.7)', position: 'relative', bottom: '37px', display: 'flex', justifyContent: 'space-between'}}>
+
+				<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button">
+					<span className="dashicons dashicons-arrow-left-alt2"></span>
+				</button>
+
+				<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button">
+					<span className="dashicons dashicons-trash"></span>
+				</button>
+
+				<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button">
+					<span className="dashicons dashicons-arrow-right-alt2"></span>
+				</button>
+			</div>
+		)
+
 		const thumbnail = (slide, i) => {
 			return (
 				<MediaUpload
@@ -131,8 +148,9 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					type="image"
 					multiple={false}
 					render={ ( { open } ) => (
-						<Button style={{padding: '0px'}}>
+						<Button style={{padding: '0px', height: '150px'}}>
 							<img src={slide.thumbnail} style={{margin: '1px', borderRadius: '4px'}} onClick={ open }/>
+							{ thumbnailControls }
 						</Button>
 					) }
 				/>
