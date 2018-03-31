@@ -170,28 +170,35 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 			</div>
 		)
 
+		const renderSlides = slides => {
+			return (
+				<div className="carousel-inner" role="listbox">
+					{
+						slides.map( (slide, i) => {
+							return (
+						    <div className={i === 0 ? "item active" : "item"}>
+						      <img src={slide.url} alt={slide.alt}/>
+						      <div className="carousel-caption">
+						        {slide.caption}
+						      </div>
+								</div>
+							)
+						} )
+					}
+				</div>
+			)
+		}
+
 		return (
 				<div className={className} id={attributes.randomKey}>
-					<div id="carousel-example-generic" className="carousel slide" data-ride="carousel" data-interval={attributes.interval}>
+					<div id="carousel-example-generic" className="carousel slide container" data-ride="carousel" data-interval={attributes.interval}>
 
 					  <ol className="carousel-indicators" style={{left: '20%'}}>
 					    <li data-target="#carousel-example-generic" data-slide-to="0" className="active"></li>
 					    <li data-target="#carousel-example-generic" data-slide-to="1"></li>
 					  </ol>
 
-					  <div className="carousel-inner" role="listbox">
-					    <div className="item active">
-					      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Colorful_spring_garden.jpg/1200px-Colorful_spring_garden.jpg" alt="..."/>
-					      <div className="carousel-caption">
-					        test
-					      </div>
-					    </div>
-					    <div className="item">
-					      <img src="https://www.awarenessdays.com/wp-content/uploads/2017/03/spring-1024x682.jpg" alt="..."/>
-					      <div className="carousel-caption">
-					      </div>
-					    </div>
-					  </div>
+						{ renderSlides(attributes.slides) }
 
 					  <a className="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
 					    <span className="dashicons dashicons-arrow-left-alt2" aria-hidden="true" style={{position: 'relative', top: '50%'}}></span>
