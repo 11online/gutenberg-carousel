@@ -15,6 +15,7 @@ const TextControl = wp.components.TextControl;
 const InspectorControls = wp.blocks.InspectorControls;
 const RangeControl = wp.components.RangeControl;
 const ColorPalette = wp.blocks.ColorPalette;
+const ToggleControl = wp.components.ToggleControl;
 // const BlockControls = wp.blocks.BlockControls;
 // const AlignmentToolbar = wp.blocks.AlignmentToolbar;
 const Dropdown = wp.components.Dropdown;
@@ -65,9 +66,13 @@ let attributes = {
 		default: 100
 	},
 	color: {
-		tyoe: 'string',
+		type: 'string',
 		default: '#fff'
 	},
+	indicators: {
+		type: 'boolean',
+		default: true
+	}
 };
 
 registerBlockType( 'cgb/block-gutenberg-carousel', {
@@ -97,6 +102,11 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 
 		const Controls = focus ? (
 			<InspectorControls>
+				<ToggleControl
+					label={ __( 'Indicators:' ) }
+					checked={ !! attributes.indicators }
+					onChange={ () => setAttributes( { indicators: ! attributes.indicators } ) }
+				/>
 				<RangeControl
 					label={ __( 'Height (px):' ) }
 					value={ attributes.height }
@@ -234,24 +244,32 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 			)
 		}
 
+		const renderIndicators = slides => {
+			return attributes.indicators ? (
+					<ol className="carousel-indicators" style={{left: '20%'}}>
+						{ slides.map( (slide, i) => {
+							return (
+								<li data-target={'#'+attributes.randomKey} key={i} data-slide-to={i} className={ i === 0 ? "active" : null }></li>
+							)
+						} ) }
+					</ol>
+				) : null
+		}
+
 		return [
 			Controls,
 			(
-				<div className={className} id={attributes.randomKey}>
-					<div id="carousel-example-generic" className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={attributes.interval}>
+				<div className={className} id={className+'-'+attributes.randomKey}>
+					<div id={attributes.randomKey} className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={attributes.interval}>
 
-					  <ol className="carousel-indicators" style={{left: '20%'}}>
-					    <li data-target="#carousel-example-generic" data-slide-to="0" className="active"></li>
-					    <li data-target="#carousel-example-generic" data-slide-to="1"></li>
-					  </ol>
-
+					  { renderIndicators(attributes.slides) }
 						{ renderSlides(attributes.slides) }
 
-					  <a className="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+					  <a className="left carousel-control" href={'#'+attributes.randomKey} role="button" data-slide="prev">
 					    <span className="dashicons dashicons-arrow-left-alt2" aria-hidden="true" style={{position: 'relative', top: '50%'}}></span>
 					    <span className="sr-only">Previous</span>
 					  </a>
-					  <a className="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+					  <a className="right carousel-control" href={'#'+attributes.randomKey} role="button" data-slide="next">
 					    <span className="dashicons dashicons-arrow-right-alt2" aria-hidden="true" style={{position: 'relative', top: '50%'}}></span>
 					    <span className="sr-only">Next</span>
 					  </a>
