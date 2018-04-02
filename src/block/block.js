@@ -19,7 +19,7 @@ const ToggleControl = wp.components.ToggleControl;
 // const BlockControls = wp.blocks.BlockControls;
 // const AlignmentToolbar = wp.blocks.AlignmentToolbar;
 const Dropdown = wp.components.Dropdown;
-// const PlainText = wp.blocks.PlainText;
+const PlainText = wp.blocks.PlainText;
 // const RichText = wp.blocks.PlainText;
 // const ColorPalette = wp.blocks.ColorPalette;
 // const SelectControl = wp.components.SelectControl;
@@ -47,7 +47,7 @@ let attributes = {
 	},
 	interval: {
 		type: 'number',
-		default: 0.5
+		default: 0
 	},
 	indicators: {
 		type: 'boolean',
@@ -72,7 +72,15 @@ let attributes = {
 	indicators: {
 		type: 'boolean',
 		default: true
-	}
+	},
+	showCaption: {
+		type: 'boolean',
+		default: true
+	},
+	showDescription: {
+		type: 'boolean',
+		default: true
+	},
 };
 
 registerBlockType( 'cgb/block-gutenberg-carousel', {
@@ -106,6 +114,16 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					label={ __( 'Indicators:' ) }
 					checked={ !! attributes.indicators }
 					onChange={ () => setAttributes( { indicators: ! attributes.indicators } ) }
+				/>
+				<ToggleControl
+					label={ __( 'Show Image Caption:' ) }
+					checked={ !! attributes.showCaption }
+					onChange={ () => setAttributes( { showCaption: ! attributes.showCaption } ) }
+				/>
+				<ToggleControl
+					label={ __( 'Show Image Description:' ) }
+					checked={ !! attributes.showDescription }
+					onChange={ () => setAttributes( { showDescription: ! attributes.showDescription } ) }
 				/>
 				<RangeControl
 					label={ __( 'Autoplay Interval:' ) }
@@ -260,6 +278,21 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 			</div>
 		)
 
+		const renderPlainText = (field, i) => {
+			return (
+				<PlainText
+					style={ { backgroundColor: 'rgba(0,0,0,0)', textAlign: 'center',  color: '#fff' } }
+					value={ attributes.slides[i][field] }
+					onChange={ value => {
+						let newSlides = [ ...attributes.slides ]
+						newSlides[i][field] = value
+						setAttributes( { slides: newSlides } )
+					} }
+					placeHolder={ field }
+				/>
+			)
+		}
+
 		const renderSlides = slides => {
 			return (
 				<div className="carousel-inner" role="listbox">
@@ -276,7 +309,16 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 									}}
 									src={slide.url} alt={slide.alt}/>
 						      <div className="carousel-caption">
-						        {slide.caption}
+						        { attributes.showCaption ? (
+											<h3>
+												{ renderPlainText('caption', i) }
+											</h3>
+										) : null }
+										{ attributes.showDescription ? (
+											<p>
+												{ renderPlainText('description', i) }
+											</p>
+										) : null }
 						      </div>
 								</div>
 							)
