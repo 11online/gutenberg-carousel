@@ -47,7 +47,7 @@ let attributes = {
 	},
 	interval: {
 		type: 'number',
-		default: '0'
+		default: 0.5
 	},
 	indicators: {
 		type: 'boolean',
@@ -108,6 +108,16 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					onChange={ () => setAttributes( { indicators: ! attributes.indicators } ) }
 				/>
 				<RangeControl
+					label={ __( 'Autoplay Interval:' ) }
+					value={ attributes.interval }
+					onChange={ value => {
+						setAttributes( { interval: value } )
+					} }
+					min={ 0 }
+					max={ 10 }
+					step={ 0.5 }
+				/>
+				<RangeControl
 					label={ __( 'Height (px):' ) }
 					value={ attributes.height }
 					onChange={ value => setAttributes( { height: value } ) }
@@ -161,24 +171,55 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 			/>
 		)
 
-		const thumbnailControls = (
-			<div className="stat-edit-buttons" style={{background: 'rgba(255,255,255,0.7)', position: 'relative', bottom: '37px', display: 'flex', justifyContent: 'space-between'}}>
-
-				<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button">
-					<span className="dashicons dashicons-arrow-left-alt2"></span>
-				</button>
-
-				<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button">
-					<span className="dashicons dashicons-trash"></span>
-				</button>
-
-				<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button">
-					<span className="dashicons dashicons-arrow-right-alt2"></span>
-				</button>
-			</div>
-		)
-
 		const thumbnail = (slide, i) => {
+
+			const swapSlide = {
+				left: () => {
+					let newSlides = [ ...attributes.slides ]
+					let swappedSlide = newSlides.splice(i, 1)[0]
+					newSlides.splice(i-1, 0, swappedSlide)
+					setAttributes( { slides: newSlides } )
+				},
+				right: () => {
+					let newSlides = [ ...attributes.slides ]
+					let swappedSlide = newSlides.splice(i, 1)[0]
+					newSlides.splice(i+1, 0, swappedSlide)
+					setAttributes( { slides: newSlides } )
+				},
+			}
+
+			const deleteSlide = () => {
+				let newSlides = [ ...attributes.slides ]
+				newSlides.splice(i, 1)
+				setAttributes( { slides: newSlides } )
+				if ( i != 0 ) {
+				}
+			}
+
+			const thumbnailControls = (
+				<div className="stat-edit-buttons" style={{background: 'rgba(255,255,255,0.7)', position: 'relative', bottom: '37px', display: 'flex', justifyContent: 'space-between'}}>
+				{ i > 0 ? (
+					<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
+						swapSlide.left()
+					} }>
+						<span className="dashicons dashicons-arrow-left-alt2"></span>
+					</button> ) : null }
+
+					<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
+						deleteSlide()
+					} }>
+						<span className="dashicons dashicons-trash"></span>
+					</button>
+
+				{ i < attributes.slides.length - 1 ? (
+					<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
+						swapSlide.right()
+					} }>
+						<span className="dashicons dashicons-arrow-right-alt2"></span>
+					</button> ) : null }
+				</div>
+			)
+
 			return (
 				<MediaUpload
 					media={ slide.id }
@@ -224,6 +265,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 				<div className="carousel-inner" role="listbox">
 					{
 						slides.map( (slide, i) => {
+
 							return (
 						    <div className={i === 0 ? "item active" : "item"} style={{backgroundColor: attributes.color}}>
 						      <img
@@ -260,7 +302,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 			Controls,
 			(
 				<div className={className} id={className+'-'+attributes.randomKey}>
-					<div id={attributes.randomKey} className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={attributes.interval}>
+					<div id={attributes.randomKey} className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={attributes.interval * 1000}>
 
 					  { renderIndicators(attributes.slides) }
 						{ renderSlides(attributes.slides) }
