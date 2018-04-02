@@ -12,6 +12,9 @@ import './editor.scss';
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
 const TextControl = wp.components.TextControl;
+const InspectorControls = wp.blocks.InspectorControls;
+const RangeControl = wp.components.RangeControl;
+const ColorPalette = wp.blocks.ColorPalette;
 // const BlockControls = wp.blocks.BlockControls;
 // const AlignmentToolbar = wp.blocks.AlignmentToolbar;
 const Dropdown = wp.components.Dropdown;
@@ -52,7 +55,19 @@ let attributes = {
 	slides: {
 		type: 'array',
 		default: []
-	}
+	},
+	height: {
+		type: 'number',
+		default: 400
+	},
+	width: {
+		type: 'number',
+		default: 100
+	},
+	color: {
+		tyoe: 'string',
+		default: '#fff'
+	},
 };
 
 registerBlockType( 'cgb/block-gutenberg-carousel', {
@@ -79,6 +94,30 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 			const randomKey = "carousel-" + Math.floor(Math.random() * 1000);
 			setAttributes({randomKey: randomKey});
 		}
+
+		const Controls = focus ? (
+			<InspectorControls>
+				<RangeControl
+					label={ __( 'Height (px):' ) }
+					value={ attributes.height }
+					onChange={ value => setAttributes( { height: value } ) }
+					min={ 100 }
+					max={ 600 }
+				/>
+				<RangeControl
+					label={ __( 'Width (%):' ) }
+					value={ attributes.width }
+					onChange={ value => setAttributes( { width: value } ) }
+					min={ 10 }
+					max={ 100 }
+				/>
+				{ __( 'Background Color:' ) }&nbsp;
+				<ColorPalette
+					value={ attributes.color }
+					onChange={ value => setAttributes ( { color: value } ) }
+				/>
+			</InspectorControls>
+		) : null
 
 		const addSlide = (
 			<MediaUpload
@@ -176,8 +215,14 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					{
 						slides.map( (slide, i) => {
 							return (
-						    <div className={i === 0 ? "item active" : "item"}>
-						      <img src={slide.url} alt={slide.alt}/>
+						    <div className={i === 0 ? "item active" : "item"} style={{backgroundColor: attributes.color}}>
+						      <img
+									style={{
+										width: 'auto',
+										height: attributes.height,
+										margin: 'auto',
+									}}
+									src={slide.url} alt={slide.alt}/>
 						      <div className="carousel-caption">
 						        {slide.caption}
 						      </div>
@@ -189,9 +234,11 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 			)
 		}
 
-		return (
+		return [
+			Controls,
+			(
 				<div className={className} id={attributes.randomKey}>
-					<div id="carousel-example-generic" className="carousel slide container" data-ride="carousel" data-interval={attributes.interval}>
+					<div id="carousel-example-generic" className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={attributes.interval}>
 
 					  <ol className="carousel-indicators" style={{left: '20%'}}>
 					    <li data-target="#carousel-example-generic" data-slide-to="0" className="active"></li>
@@ -216,6 +263,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					: null }
 				</div>
 			)
+		]
 	},
 
 	/**
