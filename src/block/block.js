@@ -12,13 +12,20 @@ import './editor.scss';
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
 const TextControl = wp.components.TextControl;
-const BlockControls = wp.blocks.BlockControls;
-const AlignmentToolbar = wp.blocks.AlignmentToolbar;
+const InspectorControls = wp.blocks.InspectorControls;
+const RangeControl = wp.components.RangeControl;
+const ColorPalette = wp.blocks.ColorPalette;
+const ToggleControl = wp.components.ToggleControl;
+// const BlockControls = wp.blocks.BlockControls;
+// const AlignmentToolbar = wp.blocks.AlignmentToolbar;
 const Dropdown = wp.components.Dropdown;
 const PlainText = wp.blocks.PlainText;
-const RichText = wp.blocks.PlainText;
-const ColorPalette = wp.blocks.ColorPalette;
-const SelectControl = wp.components.SelectControl;
+// const RichText = wp.blocks.PlainText;
+// const ColorPalette = wp.blocks.ColorPalette;
+// const SelectControl = wp.components.SelectControl;
+const DropZone = wp.components.DropZone;
+const MediaUpload = wp.blocks.MediaUpload;
+const Button = wp.components.Button;
 /**
  * Register: aa Gutenberg Block.
  *
@@ -37,7 +44,43 @@ let attributes = {
 	randomKey: {
 		type: 'string',
 		default: 'carousel'
-	}
+	},
+	interval: {
+		type: 'number',
+		default: 0
+	},
+	indicators: {
+		type: 'boolean',
+		default: true
+	},
+	slides: {
+		type: 'array',
+		default: []
+	},
+	height: {
+		type: 'number',
+		default: 400
+	},
+	width: {
+		type: 'number',
+		default: 100
+	},
+	color: {
+		type: 'string',
+		default: '#fff'
+	},
+	indicators: {
+		type: 'boolean',
+		default: true
+	},
+	showCaption: {
+		type: 'boolean',
+		default: true
+	},
+	showDescription: {
+		type: 'boolean',
+		default: true
+	},
 };
 
 registerBlockType( 'cgb/block-gutenberg-carousel', {
@@ -61,56 +104,267 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 	edit: function({ attributes, setAttributes, focus, setFocus, isSelected, className }) {
 
 		if(attributes.randomKey === 'carousel') {
-			const randomKey = "carousel" + Math.floor(Math.random() * 1000);
+			const randomKey = "carousel-" + Math.floor(Math.random() * 1000);
 			setAttributes({randomKey: randomKey});
 		}
 
-		const addRemoveRow = (
-			<div style={{textAlign: 'right'}}>
-				{ __("Add Panel:") }&nbsp;
-				<button type="button" style={{display: 'inline-block'}} className="components-button components-icon-button" onClick={() => {
+		const Controls = focus ? (
+			<InspectorControls>
+				<ToggleControl
+					label={ __( 'Indicators:' ) }
+					checked={ !! attributes.indicators }
+					onChange={ () => setAttributes( { indicators: ! attributes.indicators } ) }
+				/>
+				<ToggleControl
+					label={ __( 'Show Image Caption:' ) }
+					checked={ !! attributes.showCaption }
+					onChange={ () => setAttributes( { showCaption: ! attributes.showCaption } ) }
+				/>
+				<ToggleControl
+					label={ __( 'Show Image Description:' ) }
+					checked={ !! attributes.showDescription }
+					onChange={ () => setAttributes( { showDescription: ! attributes.showDescription } ) }
+				/>
+				<RangeControl
+					label={ __( 'Autoplay Interval:' ) }
+					value={ attributes.interval }
+					onChange={ value => {
+						setAttributes( { interval: value } )
+					} }
+					min={ 0 }
+					max={ 10 }
+					step={ 0.5 }
+				/>
+				<RangeControl
+					label={ __( 'Height (px):' ) }
+					value={ attributes.height }
+					onChange={ value => setAttributes( { height: value } ) }
+					min={ 100 }
+					max={ 600 }
+				/>
+				<RangeControl
+					label={ __( 'Width (%):' ) }
+					value={ attributes.width }
+					onChange={ value => setAttributes( { width: value } ) }
+					min={ 10 }
+					max={ 100 }
+				/>
+				{ __( 'Background Color:' ) }&nbsp;
+				<ColorPalette
+					value={ attributes.color }
+					onChange={ value => setAttributes ( { color: value } ) }
+				/>
+			</InspectorControls>
+		) : null
 
-				}}><span className="dashicons dashicons-plus"></span></button>
+		const addSlide = (
+			<MediaUpload
+				onSelect={ ( media ) => {
+					let newSlides = []
+					media.forEach( upload => {
+						let newSlide = {
+							url: upload.url,
+							caption: upload.caption,
+							description: upload.description,
+							alt: upload.alt,
+							thumbnail: upload.sizes.thumbnail.url,
+							id: upload.id
+						}
+						newSlides.push(newSlide)
+					} )
+					setAttributes( { slides: attributes.slides.concat(newSlides) } )
+				} }
+				type="image"
+				multiple={true}
+				render={ ( { open } ) => (
+					<Button style={{padding: '0px', margin: '1px'}} onClick={ open }>
+						<div style={{height: '150px', width: '150px', borderRadius: '4px', border: '1px dashed #e2e4e7', color: "#e2e4e7"}}>
+							<div style={{position: "relative", top: "50%", transform: "translateY(-50%)"}}>
+								{ 'Add Slide(s)' }
+							</div>
+						</div>
+					</Button>
+				) }
+			/>
+		)
+
+		const thumbnail = (slide, i) => {
+
+			const swapSlide = {
+				left: () => {
+					let newSlides = [ ...attributes.slides ]
+					let swappedSlide = newSlides.splice(i, 1)[0]
+					newSlides.splice(i-1, 0, swappedSlide)
+					setAttributes( { slides: newSlides } )
+				},
+				right: () => {
+					let newSlides = [ ...attributes.slides ]
+					let swappedSlide = newSlides.splice(i, 1)[0]
+					newSlides.splice(i+1, 0, swappedSlide)
+					setAttributes( { slides: newSlides } )
+				},
+			}
+
+			const deleteSlide = () => {
+				let newSlides = [ ...attributes.slides ]
+				newSlides.splice(i, 1)
+				setAttributes( { slides: newSlides } )
+				if ( i != 0 ) {
+				}
+			}
+
+			const thumbnailControls = (
+				<div className="stat-edit-buttons" style={{background: 'rgba(255,255,255,0.7)', position: 'relative', bottom: '37px', display: 'flex', justifyContent: 'space-between'}}>
+				{ i > 0 ? (
+					<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
+						swapSlide.left()
+					} }>
+						<span className="dashicons dashicons-arrow-left-alt2"></span>
+					</button> ) : null }
+
+					<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
+						deleteSlide()
+					} }>
+						<span className="dashicons dashicons-trash"></span>
+					</button>
+
+				{ i < attributes.slides.length - 1 ? (
+					<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
+						swapSlide.right()
+					} }>
+						<span className="dashicons dashicons-arrow-right-alt2"></span>
+					</button> ) : null }
+				</div>
+			)
+
+			return (
+				<MediaUpload
+					media={ slide.id }
+					onSelect={ ( media ) => {
+						let newSlides = [ ...attributes.slides ]
+						let newSlide = {
+							url: media.url,
+							caption: media.caption,
+							description: media.description,
+							alt: media.alt,
+							thumbnail: media.sizes.thumbnail.url
+						}
+						newSlides.splice(i, 1, newSlide)
+						setAttributes( { slides: newSlides } )
+					} }
+					type="image"
+					multiple={false}
+					render={ ( { open } ) => (
+						<Button style={{padding: '0px', height: '150px'}}>
+							<img src={slide.thumbnail} style={{margin: '1px', borderRadius: '4px'}} onClick={ open }/>
+							{ thumbnailControls }
+						</Button>
+					) }
+				/>
+			)
+		}
+
+		const ThumbnailGallery = (
+			<div className="thumbnail-gallery" style={{display: 'flex', flexWrap: 'wrap',}}>
+				{
+					attributes.slides.map( (slide, i) => {
+						return (
+							thumbnail(slide, i)
+						)
+					})
+				}
+				{ addSlide }
 			</div>
-		);
+		)
+
+		const renderPlainText = (field, i) => {
+			return (
+				<PlainText
+					style={ { backgroundColor: 'rgba(0,0,0,0)', textAlign: 'center',  color: '#fff' } }
+					value={ attributes.slides[i][field] }
+					onChange={ value => {
+						let newSlides = [ ...attributes.slides ]
+						newSlides[i][field] = value
+						setAttributes( { slides: newSlides } )
+					} }
+					placeHolder={ field }
+				/>
+			)
+		}
+
+		const renderSlides = slides => {
+			return (
+				<div className="carousel-inner" role="listbox">
+					{
+						slides.map( (slide, i) => {
+
+							return (
+						    <div className={i === 0 ? "item active" : "item"} style={{backgroundColor: attributes.color}}>
+						      <img
+									style={{
+										width: 'auto',
+										height: attributes.height,
+										margin: 'auto',
+									}}
+									src={slide.url} alt={slide.alt}/>
+						      <div className="carousel-caption">
+						        { attributes.showCaption ? (
+											<h3>
+												{ renderPlainText('caption', i) }
+											</h3>
+										) : null }
+										{ attributes.showDescription ? (
+											<p>
+												{ renderPlainText('description', i) }
+											</p>
+										) : null }
+						      </div>
+								</div>
+							)
+						} )
+					}
+				</div>
+			)
+		}
+
+		const renderIndicators = slides => {
+			return attributes.indicators ? (
+					<ol className="carousel-indicators" style={{left: '20%'}}>
+						{ slides.map( (slide, i) => {
+							return (
+								<li data-target={'#'+attributes.randomKey} key={i} data-slide-to={i} className={ i === 0 ? "active" : null }></li>
+							)
+						} ) }
+					</ol>
+				) : null
+		}
 
 		return [
+			Controls,
 			(
-				<div id="carousel-example-generic" className="carousel slide" data-ride="carousel">
+				<div className={className} id={className+'-'+attributes.randomKey}>
+					<div id={attributes.randomKey} className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={0}>
 
-				  <ol className="carousel-indicators">
-				    <li data-target="#carousel-example-generic" data-slide-to="0" className="active"></li>
-				    <li data-target="#carousel-example-generic" data-slide-to="1"></li>
-				    <li data-target="#carousel-example-generic" data-slide-to="2"></li>
-				  </ol>
+					  { renderIndicators(attributes.slides) }
+						{ renderSlides(attributes.slides) }
 
-				  <div className="carousel-inner" role="listbox">
-				    <div className="item active">
-				      <img src="https://picsum.photos/200/300/?random" alt="..."/>
-				      <div className="carousel-caption">
-				        ...
-				      </div>
-				    </div>
-				    <div className="item">
-				      <img src="https://picsum.photos/200/300/?random" alt="..."/>
-				      <div className="carousel-caption">
-				        ...
-				      </div>
-				    </div>
-				    ...
-				  </div>
-
-				  <a className="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
-				    <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-				    <span className="sr-only">Previous</span>
-				  </a>
-				  <a className="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
-				    <span className="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-				    <span className="sr-only">Next</span>
-				  </a>
+					  <a className="left carousel-control" href={'#'+attributes.randomKey} role="button" data-slide="prev">
+					    <span className="dashicons dashicons-arrow-left-alt2" aria-hidden="true" style={{position: 'relative', top: '50%'}}></span>
+					    <span className="sr-only">Previous</span>
+					  </a>
+					  <a className="right carousel-control" href={'#'+attributes.randomKey} role="button" data-slide="next">
+					    <span className="dashicons dashicons-arrow-right-alt2" aria-hidden="true" style={{position: 'relative', top: '50%'}}></span>
+					    <span className="sr-only">Next</span>
+					  </a>
+					</div>
+					{ focus ?
+						<div>
+							{ ThumbnailGallery }
+						</div>
+					: null }
 				</div>
-			),
-		];
+			)
+		]
 	},
 
 	/**
@@ -122,8 +376,72 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 	 * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
 	 */
 	save: function({ attributes, className }) {
+
+		const renderSlides = slides => {
+			return (
+				<div className="carousel-inner" role="listbox">
+					{
+						slides.map( (slide, i) => {
+
+							return (
+						    <div className={i === 0 ? "item active" : "item"} style={{backgroundColor: attributes.color}}>
+						      <img
+									style={{
+										width: 'auto',
+										height: attributes.height,
+										margin: 'auto',
+									}}
+									src={slide.url} alt={slide.alt}/>
+						      <div className="carousel-caption">
+						        { attributes.showCaption ? (
+											<h3 style={{color: 'white'}}>
+												{ slide.caption }
+											</h3>
+										) : null }
+										{ attributes.showDescription ? (
+											<p>
+												{ slide.description }
+											</p>
+										) : null }
+						      </div>
+								</div>
+							)
+
+						} )
+					}
+				</div>
+			)
+		}
+
+		const renderIndicators = slides => {
+			return attributes.indicators ? (
+					<ol className="carousel-indicators">
+						{ slides.map( (slide, i) => {
+							return (
+								<li data-target={'#'+attributes.randomKey} key={i} data-slide-to={i} className={ i === 0 ? "active" : null }></li>
+							)
+						} ) }
+					</ol>
+				) : null
+		}
+
 		return (
-			<div>test</div>
-		);
-	},
+				<div className={className} id={className+'-'+attributes.randomKey}>
+					<div id={attributes.randomKey} className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={attributes.interval * 1000}>
+
+					  { renderIndicators(attributes.slides) }
+						{ renderSlides(attributes.slides) }
+
+					  <a className="left carousel-control" href={'#'+attributes.randomKey} role="button" data-slide="prev">
+					    <span className="dashicons dashicons-arrow-left-alt2" aria-hidden="true" style={{position: 'relative', top: '50%'}}></span>
+					    <span className="sr-only">Previous</span>
+					  </a>
+					  <a className="right carousel-control" href={'#'+attributes.randomKey} role="button" data-slide="next">
+					    <span className="dashicons dashicons-arrow-right-alt2" aria-hidden="true" style={{position: 'relative', top: '50%'}}></span>
+					    <span className="sr-only">Next</span>
+					  </a>
+					</div>
+				</div>
+			)
+		}
 } );

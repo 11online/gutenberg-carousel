@@ -24,13 +24,13 @@ function gutenberg_carousel_cgb_block_assets() {
 	// Styles.
 	wp_enqueue_style(
 		'gutenberg_carousel-block-bootstrap-css', // Handle.
-		plugins_url( '/bootstrap-carousel.css', dirname( __FILE__ ) ), // Block editor CSS.
+		plugins_url( '/bootstrap.min.css', dirname( __FILE__ ) ), // Block editor CSS.
 		array( 'wp-edit-blocks' ) // Dependency to include the CSS after it.
 		// filemtime( plugin_dir_path( __FILE__ ) . 'editor.css' ) // Version: filemtime — Gets file modification time.
 	);
 	wp_enqueue_script(
 		'gutenberg_carousel-bootstrap-js', // Handle.
-		plugins_url( '/bootstrap-carousel.js', dirname( __FILE__ ) ), // Block.build.js: We register the block here. Built with Webpack.
+		plugins_url( '/bootstrap.min.js', dirname( __FILE__ ) ), // Block.build.js: We register the block here. Built with Webpack.
 		array( 'wp-blocks', 'wp-i18n', 'wp-element', 'jquery' ) // Dependencies, defined above.
 		// filemtime( plugin_dir_path( __FILE__ ) . 'block.js' ) // Version: filemtime — Gets file modification time.
 	);
@@ -50,25 +50,24 @@ add_action( 'enqueue_block_assets', 'gutenberg_carousel_cgb_block_assets' );
  */
 function gutenberg_carousel_cgb_editor_assets() {
 	// Scripts.
+	wp_enqueue_style(
+		'gutenberg_carousel-block-bootstrap-css', // Handle.
+		plugins_url( '/bootstrap.min.css', dirname( __FILE__ ) ), // Block editor CSS.
+		array( 'wp-edit-blocks' ) // Dependency to include the CSS after it.
+		// filemtime( plugin_dir_path( __FILE__ ) . 'editor.css' ) // Version: filemtime — Gets file modification time.
+	);
+	wp_enqueue_script(
+		'gutenberg_carousel-bootstrap-js', // Handle.
+		plugins_url( '/bootstrap.min.js', dirname( __FILE__ ) ), // Block.build.js: We register the block here. Built with Webpack.
+		array( 'wp-blocks', 'wp-i18n', 'wp-element', 'jquery' ) // Dependencies, defined above.
+		// filemtime( plugin_dir_path( __FILE__ ) . 'block.js' ) // Version: filemtime — Gets file modification time.
+	);
+
 	wp_enqueue_script(
 		'gutenberg_carousel-cgb-block-js', // Handle.
 		plugins_url( '/dist/blocks.build.js', dirname( __FILE__ ) ), // Block.build.js: We register the block here. Built with Webpack.
 		array( 'wp-blocks', 'wp-i18n', 'wp-element' ) // Dependencies, defined above.
 		// filemtime( plugin_dir_path( __FILE__ ) . 'block.js' ) // Version: filemtime — Gets file modification time.
-	);
-	wp_enqueue_script(
-		'gutenberg_carousel-bootstrap-js', // Handle.
-		plugins_url( '/bootstrap-carousel.js', dirname( __FILE__ ) ), // Block.build.js: We register the block here. Built with Webpack.
-		array( 'wp-blocks', 'wp-i18n', 'wp-element', 'jquery' ) // Dependencies, defined above.
-		// filemtime( plugin_dir_path( __FILE__ ) . 'block.js' ) // Version: filemtime — Gets file modification time.
-	);
-
-	// Styles.
-	wp_enqueue_style(
-		'gutenberg_carousel-block-bootstrap-css', // Handle.
-		plugins_url( '/bootstrap-carousel.css', dirname( __FILE__ ) ), // Block editor CSS.
-		array( 'wp-edit-blocks' ) // Dependency to include the CSS after it.
-		// filemtime( plugin_dir_path( __FILE__ ) . 'editor.css' ) // Version: filemtime — Gets file modification time.
 	);
 } // End function gutenberg_carousel_cgb_editor_assets().
 
