@@ -160,7 +160,6 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 		const addSlide = (
 			<MediaUpload
 				onSelect={ ( media ) => {
-					console.log( media )
 					let newSlides = []
 					media.forEach( upload => {
 						let newSlide = {
@@ -181,7 +180,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					<Button style={{padding: '0px', margin: '1px'}} onClick={ open }>
 						<div style={{height: '150px', width: '150px', borderRadius: '4px', border: '1px dashed #e2e4e7', color: "#e2e4e7"}}>
 							<div style={{position: "relative", top: "50%", transform: "translateY(-50%)"}}>
-								Add Slide
+								{ 'Add Slide(s)' }
 							</div>
 						</div>
 					</Button>
@@ -344,7 +343,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 			Controls,
 			(
 				<div className={className} id={className+'-'+attributes.randomKey}>
-					<div id={attributes.randomKey} className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={attributes.interval * 1000}>
+					<div id={attributes.randomKey} className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={0}>
 
 					  { renderIndicators(attributes.slides) }
 						{ renderSlides(attributes.slides) }
@@ -377,10 +376,72 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 	 * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
 	 */
 	save: function({ attributes, className }) {
-		return (
-				<div className={className}>
-					test
+
+		const renderSlides = slides => {
+			return (
+				<div className="carousel-inner" role="listbox">
+					{
+						slides.map( (slide, i) => {
+
+							return (
+						    <div className={i === 0 ? "item active" : "item"} style={{backgroundColor: attributes.color}}>
+						      <img
+									style={{
+										width: 'auto',
+										height: attributes.height,
+										margin: 'auto',
+									}}
+									src={slide.url} alt={slide.alt}/>
+						      <div className="carousel-caption">
+						        { attributes.showCaption ? (
+											<h3 style={{color: 'white'}}>
+												{ slide.caption }
+											</h3>
+										) : null }
+										{ attributes.showDescription ? (
+											<p>
+												{ slide.description }
+											</p>
+										) : null }
+						      </div>
+								</div>
+							)
+
+						} )
+					}
 				</div>
 			)
-		},
+		}
+
+		const renderIndicators = slides => {
+			return attributes.indicators ? (
+					<ol className="carousel-indicators">
+						{ slides.map( (slide, i) => {
+							return (
+								<li data-target={'#'+attributes.randomKey} key={i} data-slide-to={i} className={ i === 0 ? "active" : null }></li>
+							)
+						} ) }
+					</ol>
+				) : null
+		}
+
+		return (
+				<div className={className} id={className+'-'+attributes.randomKey}>
+					<div id={attributes.randomKey} className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={attributes.interval * 1000}>
+
+					  { renderIndicators(attributes.slides) }
+						{ renderSlides(attributes.slides) }
+
+					  <a className="left carousel-control" href={'#'+attributes.randomKey} role="button" data-slide="prev">
+					    <span className="dashicons dashicons-arrow-left-alt2" aria-hidden="true" style={{position: 'relative', top: '50%'}}></span>
+					    <span className="sr-only">Previous</span>
+					  </a>
+					  <a className="right carousel-control" href={'#'+attributes.randomKey} role="button" data-slide="next">
+					    <span className="dashicons dashicons-arrow-right-alt2" aria-hidden="true" style={{position: 'relative', top: '50%'}}></span>
+					    <span className="sr-only">Next</span>
+					  </a>
+					</div>
+				</div>
+			)
+		}
 } );
