@@ -388,7 +388,6 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 			Controls,
 			(
 				<div className={className} id={className+'-'+attributes.randomKey}>
-					<h2>{attributes.currentSlide}</h2>
 					<div id={attributes.randomKey} className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={0}>
 
 					  { renderIndicators(attributes.slides) }
