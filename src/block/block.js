@@ -81,6 +81,10 @@ let attributes = {
 		type: 'boolean',
 		default: true
 	},
+	currentSlide: {
+		type: 'number',
+		default: 0
+	},
 };
 
 registerBlockType( 'cgb/block-gutenberg-carousel', {
@@ -206,15 +210,20 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 			}
 
 			const deleteSlide = () => {
+				if ( attributes.currentSlide === i && attributes.slides.length - 1 === i ) {
+					selectSlide(i-1)
+				}
+				else if ( attributes.currentSlide === attributes.slides.length - 1 ) {
+					selectSlide(attributes.currentSlide-1)
+				}
 				let newSlides = [ ...attributes.slides ]
 				newSlides.splice(i, 1)
 				setAttributes( { slides: newSlides } )
-				if ( i != 0 ) {
-				}
 			}
 
-			const selectSlide = () => {
-				jQuery('#'+attributes.randomKey).carousel(i)
+			const selectSlide = (slide) => {
+				jQuery('#'+attributes.randomKey).carousel(slide)
+				changeCurrentSlide.direct(slide)
 			}
 
 			const renderThumbnailControls = (editSlide) => {
@@ -273,7 +282,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 			return (
 				<Button style={{padding: '0px', height: '150px'}}>
 					<img src={slide.thumbnail} style={{margin: '1px', borderRadius: '4px'}} onClick={ () => {
-						selectSlide()
+						selectSlide(i)
 					} }/>
 					{ renderThumbnailControls(editSlide) }
 				</Button>
@@ -355,20 +364,41 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 				) : null
 		}
 
+		const changeCurrentSlide = {
+			left: () => {
+				if ( attributes.currentSlide != 0 ) {
+					setAttributes( { currentSlide: attributes.currentSlide - 1 } )
+				} else {
+					setAttributes( { currentSlide: attributes.slides.length - 1 } )
+				}
+			},
+			right: () => {
+				if ( attributes.currentSlide != attributes.slides.length - 1 ) {
+					setAttributes( { currentSlide: attributes.currentSlide + 1 } )
+				} else {
+					setAttributes( { currentSlide: 0 } )
+				}
+			},
+			direct: (slide) => {
+				setAttributes( { currentSlide: slide } )
+			}
+		}
+
 		return [
 			Controls,
 			(
 				<div className={className} id={className+'-'+attributes.randomKey}>
+					<h2>{attributes.currentSlide}</h2>
 					<div id={attributes.randomKey} className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={0}>
 
 					  { renderIndicators(attributes.slides) }
 						{ renderSlides(attributes.slides) }
 
-					  <a className="left carousel-control" href={'#'+attributes.randomKey} role="button" data-slide="prev">
+					  <a className="left carousel-control" href={'#'+attributes.randomKey} role="button" data-slide="prev" onClick={ () => changeCurrentSlide.left()}>
 					    <span className="dashicons dashicons-arrow-left-alt2" aria-hidden="true" style={{position: 'relative', top: '50%'}}></span>
 					    <span className="sr-only">Previous</span>
 					  </a>
-					  <a className="right carousel-control" href={'#'+attributes.randomKey} role="button" data-slide="next">
+					  <a className="right carousel-control" href={'#'+attributes.randomKey} role="button" data-slide="next" onClick={ () => changeCurrentSlide.right()}>
 					    <span className="dashicons dashicons-arrow-right-alt2" aria-hidden="true" style={{position: 'relative', top: '50%'}}></span>
 					    <span className="sr-only">Next</span>
 					  </a>
