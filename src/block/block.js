@@ -379,7 +379,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 						</div>
 					: null }
 				</div>
-			)
+			),
 		]
 	},
 
