@@ -213,31 +213,39 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 				}
 			}
 
-			const thumbnailControls = (
-				<div className="stat-edit-buttons" style={{background: 'rgba(255,255,255,0.7)', position: 'relative', bottom: '37px', display: 'flex', justifyContent: 'space-between'}}>
-				{ i > 0 ? (
-					<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
-						swapSlide.left()
-					} }>
-						<span className="dashicons dashicons-arrow-left-alt2"></span>
-					</button> ) : null }
+			const selectSlide = () => {
+				jQuery('#'+attributes.randomKey).carousel(i)
+			}
 
-					<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
-						deleteSlide()
-					} }>
-						<span className="dashicons dashicons-trash"></span>
-					</button>
+			const renderThumbnailControls = (editSlide) => {
+				return (
+					<div className="stat-edit-buttons" style={{background: 'rgba(255,255,255,0.7)', position: 'relative', bottom: '37px', display: 'flex', justifyContent: 'space-between'}}>
+					{ i > 0 ? (
+						<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
+							swapSlide.left()
+						} }>
+							<span className="dashicons dashicons-arrow-left-alt2"></span>
+						</button> ) : null }
 
-				{ i < attributes.slides.length - 1 ? (
-					<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
-						swapSlide.right()
-					} }>
-						<span className="dashicons dashicons-arrow-right-alt2"></span>
-					</button> ) : null }
-				</div>
-			)
+						{ editSlide }
 
-			return (
+						<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
+							deleteSlide()
+						} }>
+							<span className="dashicons dashicons-trash"></span>
+						</button>
+
+					{ i < attributes.slides.length - 1 ? (
+						<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
+							swapSlide.right()
+						} }>
+							<span className="dashicons dashicons-arrow-right-alt2"></span>
+						</button> ) : null }
+					</div>
+				)
+			}
+
+			const editSlide = (
 				<MediaUpload
 					media={ slide.id }
 					onSelect={ ( media ) => {
@@ -255,12 +263,20 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					type="image"
 					multiple={false}
 					render={ ( { open } ) => (
-						<Button style={{padding: '0px', height: '150px'}}>
-							<img src={slide.thumbnail} style={{margin: '1px', borderRadius: '4px'}} onClick={ open }/>
-							{ thumbnailControls }
-						</Button>
+						<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ open }>
+							<span className="dashicons dashicons-format-image"></span>
+						</button>
 					) }
 				/>
+			)
+
+			return (
+				<Button style={{padding: '0px', height: '150px'}}>
+					<img src={slide.thumbnail} style={{margin: '1px', borderRadius: '4px'}} onClick={ () => {
+						selectSlide()
+					} }/>
+					{ renderThumbnailControls(editSlide) }
+				</Button>
 			)
 		}
 
@@ -363,7 +379,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 						</div>
 					: null }
 				</div>
-			)
+			),
 		]
 	},
 
