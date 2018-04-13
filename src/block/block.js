@@ -142,6 +142,14 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					onChange={ () => setAttributes( { showDescription: ! attributes.showDescription } ) }
 				/>
 				<RangeControl
+				label={ __( "Rounded Corners for Text Backdrops:") }
+					value={attributes.backdropBorderRadius}
+					onChange={ value => setAttributes ( { backdropBorderRadius: value } ) }
+					min={0}
+					max={20}
+					step={2}
+				/>
+				<RangeControl
 					label={ __( 'Autoplay Interval:' ) }
 					value={ attributes.interval }
 					onChange={ value => {
@@ -169,14 +177,6 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 				<ColorPalette
 					value={ attributes.color }
 					onChange={ value => setAttributes ( { color: value } ) }
-				/>
-				<RangeControl
-				label={ __( "Backdrop Rounded Corners:") }
-					value={attributes.backdropBorderRadius}
-					onChange={ value => setAttributes ( { backdropBorderRadius: value } ) }
-					min={0}
-					max={20}
-					step={2}
 				/>
 			</InspectorControls>
 		) : null
@@ -394,6 +394,32 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					return colorString
 				}
 
+				const applyAllButton = (
+					<button onClick={ () => handleApplyAll() } style={{width: '100%'}}>Apply All</button>
+				)
+
+				const handleApplyAll = () => {
+					let c = confirm("Are you sure you want to apply these settings to ALL slides? This action will overwrite previous settings.")
+					if (c) {
+						applyAll()
+					}
+					else {
+						return
+					}
+				}
+
+				const applyAll = () => {
+					let newSlides = [ ...attributes.slides ]
+					let changedSlides = newSlides.map( ( s ) => {
+						s.textColor = newSlides[i].textColor
+						s.backdropColor = newSlides[i].backdropColor
+						s.backdropOpacity = newSlides[i].backdropOpacity
+						return s
+					})
+					console.log(changedSlides)
+					setAttributes( { slides: changedSlides } )
+				}
+
 				return (
 					<div className='thumbnail-options-box' style={{padding: '10px'}}>
 						<SelectControl
@@ -419,6 +445,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 							max={1}
 							step={0.05}
 						/>
+						{ applyAllButton }
 					</div>
 				)
 			}
@@ -476,17 +503,19 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 										margin: 'auto',
 									}}
 									src={slide.url} alt={slide.alt}/>
-						      <div className="carousel-caption" style={{backgroundColor: slide.backdropColor, borderRadius: `${attributes.backdropBorderRadius}px`}}>
-						        { attributes.showCaption ? (
-											<h3 style={{color: slide.textColor}}>
-												{ renderPlainText('caption', i) }
-											</h3>
-										) : null }
-										{ attributes.showDescription ? (
-											<p style={{color: slide.textColor }}>
-												{ renderPlainText('description', i) }
-											</p>
-										) : null }
+						      <div className="carousel-caption">
+										<div className="carousel-backdrop" style={{backgroundColor: slide.backdropColor, borderRadius: `${attributes.backdropBorderRadius}px`}}>
+							        { attributes.showCaption ? (
+												<h3 style={{color: slide.textColor}}>
+													{ renderPlainText('caption', i) }
+												</h3>
+											) : null }
+											{ attributes.showDescription ? (
+												<p style={{color: slide.textColor }}>
+													{ renderPlainText('description', i) }
+												</p>
+											) : null }
+										</div>
 						      </div>
 								</div>
 							)
@@ -582,16 +611,18 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 									}}
 									src={slide.url} alt={slide.alt}/>
 						      <div className="carousel-caption">
-						        { attributes.showCaption ? (
-											<h3 style={{color: 'white'}}>
-												{ slide.caption }
-											</h3>
-										) : null }
-										{ attributes.showDescription ? (
-											<p>
-												{ slide.description }
-											</p>
-										) : null }
+										<div className="carousel-backdrop" style={{borderRadius: attributes.backdropBorderRadius, backgroundColor: slide.backdropColor}}>
+							        { attributes.showCaption ? (
+												<h3 style={{color: slide.textColor, paddingTop: '0.25em', paddingBottom: attributes.showDescription ? '0px' : '0.25em'}}>
+													{ slide.caption }
+												</h3>
+											) : null }
+											{ attributes.showDescription ? (
+												<p style={{color: slide.textColor, paddingBottom: '0.25em', addingTop: attributes.showCaption ? '0px' : '0.25em'}}>
+													{ slide.description }
+												</p>
+											) : null }
+										</div>
 						      </div>
 								</div>
 							)
