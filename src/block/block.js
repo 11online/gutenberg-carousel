@@ -476,17 +476,19 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 										margin: 'auto',
 									}}
 									src={slide.url} alt={slide.alt}/>
-						      <div className="carousel-caption" style={{backgroundColor: slide.backdropColor, borderRadius: `${attributes.backdropBorderRadius}px`}}>
-						        { attributes.showCaption ? (
-											<h3 style={{color: slide.textColor}}>
-												{ renderPlainText('caption', i) }
-											</h3>
-										) : null }
-										{ attributes.showDescription ? (
-											<p style={{color: slide.textColor }}>
-												{ renderPlainText('description', i) }
-											</p>
-										) : null }
+						      <div className="carousel-caption">
+										<div className="carousel-backdrop" style={{backgroundColor: slide.backdropColor, borderRadius: `${attributes.backdropBorderRadius}px`}}>
+							        { attributes.showCaption ? (
+												<h3 style={{color: slide.textColor}}>
+													{ renderPlainText('caption', i) }
+												</h3>
+											) : null }
+											{ attributes.showDescription ? (
+												<p style={{color: slide.textColor }}>
+													{ renderPlainText('description', i) }
+												</p>
+											) : null }
+										</div>
 						      </div>
 								</div>
 							)
@@ -581,17 +583,19 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 										margin: 'auto',
 									}}
 									src={slide.url} alt={slide.alt}/>
-						      <div className="carousel-caption" style={{borderRadius: attributes.backdropBorderRadius, backgroundColor: slide.backdropColor}}>
-						        { attributes.showCaption ? (
-											<h3 style={{color: slide.textColor}}>
-												{ slide.caption }
-											</h3>
-										) : null }
-										{ attributes.showDescription ? (
-											<p style={{color: slide.textColor}}>
-												{ slide.description }
-											</p>
-										) : null }
+						      <div className="carousel-caption">
+										<div className="carousel-backdrop" style={{borderRadius: attributes.backdropBorderRadius, backgroundColor: slide.backdropColor}}>
+							        { attributes.showCaption ? (
+												<h3 style={{color: slide.textColor, paddingTop: '0.25em', paddingBottom: attributes.showDescription ? '0px' : '0.25em'}}>
+													{ slide.caption }
+												</h3>
+											) : null }
+											{ attributes.showDescription ? (
+												<p style={{color: slide.textColor, paddingBottom: '0.25em', addingTop: attributes.showCaption ? '0px' : '0.25em'}}>
+													{ slide.description }
+												</p>
+											) : null }
+										</div>
 						      </div>
 								</div>
 							)
