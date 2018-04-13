@@ -395,11 +395,11 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 				}
 
 				const applyAllButton = (
-					<button onClick={ () => handleApplyAll() }>Apply All</button>
+					<button onClick={ () => handleApplyAll() } style={{width: '100%'}}>Apply All</button>
 				)
 
 				const handleApplyAll = () => {
-					let c = confirm("Are you sure you want to apply these settings to ALL slides? This action will overwrite previous changes.")
+					let c = confirm("Are you sure you want to apply these settings to ALL slides? This action will overwrite previous settings.")
 					if (c) {
 						applyAll()
 					}
