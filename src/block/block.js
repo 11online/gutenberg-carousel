@@ -92,6 +92,10 @@ let attributes = {
 		type: 'string',
 		default: 'textColor'
 	},
+	backdropBorderRadius: {
+		type: 'number',
+		default: 0
+	},
 };
 
 registerBlockType( 'cgb/block-gutenberg-carousel', {
@@ -166,6 +170,14 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					value={ attributes.color }
 					onChange={ value => setAttributes ( { color: value } ) }
 				/>
+				<RangeControl
+				label={ __( "Backdrop Rounded Corners:") }
+					value={attributes.backdropBorderRadius}
+					onChange={ value => setAttributes ( { backdropBorderRadius: value } ) }
+					min={0}
+					max={20}
+					step={2}
+				/>
 			</InspectorControls>
 		) : null
 
@@ -184,7 +196,6 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 							textColor: 'rgb(255, 255, 255)',
 							backdropColor: 'rgba(0, 0, 0, 0)',
 							backdropOpacity: 0,
-							backdropBorderRadius: 0,
 						}
 						newSlides.push(newSlide)
 					} )
@@ -282,7 +293,6 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 							textColor: newSlides[i].textColor,
 							backdropColor: newSlides[i].backdropColor,
 							backdropOpacity: newSlides[i].backdropOpacity,
-							backdropBorderRadius: newSlides[i].backdropBorderRadius,
 						}
 						newSlides.splice(i, 1, newSlide)
 						setAttributes( { slides: newSlides } )
@@ -409,18 +419,6 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 							max={1}
 							step={0.05}
 						/>
-						<RangeControl
-						label={ __( "Backdrop Rounded Corners:") }
-							value={slide.backdropBorderRadius}
-							onChange={ value => {
-								let newSlides = [ ...attributes.slides ]
-								newSlides[i].backdropBorderRadius = value
-								setAttributes( { slides: newSlides } )
-							} }
-							min={0}
-							max={20}
-							step={2}
-						/>
 					</div>
 				)
 			}
@@ -478,7 +476,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 										margin: 'auto',
 									}}
 									src={slide.url} alt={slide.alt}/>
-						      <div className="carousel-caption" style={{backgroundColor: slide.backdropColor, borderRadius: `${slide.backdropBorderRadius}px`}}>
+						      <div className="carousel-caption" style={{backgroundColor: slide.backdropColor, borderRadius: `${attributes.backdropBorderRadius}px`}}>
 						        { attributes.showCaption ? (
 											<h3 style={{color: slide.textColor}}>
 												{ renderPlainText('caption', i) }
