@@ -314,7 +314,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					position="bottom right"
 					renderToggle={ ( { isOpen, onToggle } ) => (
 							<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ onToggle }  aria-expanded={ isOpen }>
-								<span className="dashicons dashicons-admin-generic"></span>
+								<span className="dashicons dashicons-admin-generic" onClick={() => selectSlide(i)}></span>
 							</button>
 					) }
 					renderContent={ () => renderThumbnailOptionsBox() }
