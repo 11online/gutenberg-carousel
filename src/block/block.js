@@ -173,7 +173,10 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 							description: upload.description,
 							alt: upload.alt,
 							thumbnail: upload.sizes.thumbnail.url,
-							id: upload.id
+							id: upload.id,
+							textColor: '#FFF',
+							backdropColor: '',
+							backdropOpacity: 1,
 						}
 						newSlides.push(newSlide)
 					} )
@@ -227,7 +230,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 				changeCurrentSlide.direct(slide)
 			}
 
-			const renderThumbnailControls = (editSlide) => {
+			const renderThumbnailControls = (editSlideButton) => {
 				return (
 					<div className="stat-edit-buttons" style={{background: 'rgba(255,255,255,0.7)', position: 'relative', bottom: '37px', display: 'flex', justifyContent: 'space-between'}}>
 					{ i > 0 ? (
@@ -237,7 +240,9 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 							<span className="dashicons dashicons-arrow-left-alt2"></span>
 						</button> ) : null }
 
-						{ editSlide }
+						{ editSlideButton }
+
+						{ thumbnailOptionsButton }
 
 						<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
 							deleteSlide()
@@ -255,7 +260,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 				)
 			}
 
-			const editSlide = (
+			const editSlideButton = (
 				<MediaUpload
 					media={ slide.id }
 					onSelect={ ( media ) => {
@@ -280,12 +285,71 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 				/>
 			)
 
-			return (
+			const thumbnailOptionsButton = (
+				<Dropdown
+					className="thumbnail-options-button"
+					contentClassName="thumbnail-options-box-container"
+					position="bottom right"
+					renderToggle={ ( { isOpen, onToggle } ) => (
+							<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ onToggle }  aria-expanded={ isOpen }>
+								<span className="dashicons dashicons-admin-generic"></span>
+							</button>
+					) }
+					renderContent={ () => renderThumbnailOptionsBox() }
+				/>
+			)
+
+			const renderThumbnailOptionsBox = () => {
+
+				const renderColorControlBox = (attribute, label) => {
+					return (
+						<div className='color-control-box' style={{padding: '10px'}}>
+							{ __( label) }&nbsp;
+							<ColorPalette
+								disableCustomColors
+								onChange={ ( value ) => {
+									let newSlides = [ ...attributes.slides ]
+									newSlide[i][attribute] = value
+									setAttributes( { slides: newSlides } )
+								} }
+								value={attributes.slides[i][attributes]}
+							/>
+							<a class="button-link blocks-color-palette__clear" onClick={ () => setAttributes( { customColor: ! attributes.customColor } ) } type="button">
+								<div className="blocks-color-palette__item-wrapper blocks-color-palette__custom-color">
+									<span className="blocks-color-palette__custom-color-gradient" />
+								</div>
+							</a>
+							{ attributes.customColor ?
+								<ChromePicker
+									style={{width: '100%'}}
+									color={ attributes.slides[i][attribute] }
+									onChangeComplete={ ( color ) => {
+										let newSlides = [ ...attributes.slides ]
+										newSlides[i][attribute] = `${color.hex}`
+										setAttributes( { slides: newSlides } )
+									} }
+									style={ { width: '100%' } }
+									disableAlpha
+								/>
+							: null }
+						</div>
+					)
+				}
+
+				return (
+					<div className='thumbnail-options-box' style={{padding: '10px'}}>
+					{ renderColorControlBox('textColor', 'Text Color:') }
+					{ renderColorControlBox('backdropColor', 'Backdrop Color:') }
+					</div>
+				)
+			}
+
+			return ( //Finally, return value for thumbnail()
 				<Button style={{padding: '0px', height: '150px'}}>
 					<img src={slide.thumbnail} style={{margin: '1px', borderRadius: '4px'}} onClick={ () => {
 						selectSlide(i)
 					} }/>
-					{ renderThumbnailControls(editSlide) }
+					{ renderThumbnailControls(editSlideButton) }
 				</Button>
 			)
 		}
