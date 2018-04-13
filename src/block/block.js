@@ -9,6 +9,9 @@
 import './style.scss';
 import './editor.scss';
 
+import React from 'react';
+import ChromePicker from 'react-color';
+
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
 const TextControl = wp.components.TextControl;
@@ -22,7 +25,7 @@ const Dropdown = wp.components.Dropdown;
 const PlainText = wp.blocks.PlainText;
 // const RichText = wp.blocks.PlainText;
 // const ColorPalette = wp.blocks.ColorPalette;
-// const SelectControl = wp.components.SelectControl;
+const SelectControl = wp.components.SelectControl;
 const DropZone = wp.components.DropZone;
 const MediaUpload = wp.blocks.MediaUpload;
 const Button = wp.components.Button;
@@ -85,11 +88,20 @@ let attributes = {
 		type: 'number',
 		default: 0
 	},
+	colorPicker: {
+		type: 'string',
+		default: 'textColor'
+	},
+	backdropBorderRadius: {
+		type: 'number',
+		default: 0
+	},
 };
 
 registerBlockType( 'cgb/block-gutenberg-carousel', {
 	// Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
 	title: __( 'Carousel' ), // Block title.
+	description: __( 'Carousels work best when images share the same dimensions' ),
 	icon: 'image-flip-horizontal', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
 	category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
 	attributes: attributes,
@@ -158,6 +170,14 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					value={ attributes.color }
 					onChange={ value => setAttributes ( { color: value } ) }
 				/>
+				<RangeControl
+				label={ __( "Backdrop Rounded Corners:") }
+					value={attributes.backdropBorderRadius}
+					onChange={ value => setAttributes ( { backdropBorderRadius: value } ) }
+					min={0}
+					max={20}
+					step={2}
+				/>
 			</InspectorControls>
 		) : null
 
@@ -172,7 +192,10 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 							description: upload.description,
 							alt: upload.alt,
 							thumbnail: upload.sizes.thumbnail.url,
-							id: upload.id
+							id: upload.id,
+							textColor: 'rgb(255, 255, 255)',
+							backdropColor: 'rgba(0, 0, 0, 0)',
+							backdropOpacity: 0,
 						}
 						newSlides.push(newSlide)
 					} )
@@ -226,7 +249,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 				changeCurrentSlide.direct(slide)
 			}
 
-			const renderThumbnailControls = (editSlide) => {
+			const renderThumbnailControls = (editSlideButton) => {
 				return (
 					<div className="stat-edit-buttons" style={{background: 'rgba(255,255,255,0.7)', position: 'relative', bottom: '37px', display: 'flex', justifyContent: 'space-between'}}>
 					{ i > 0 ? (
@@ -236,7 +259,9 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 							<span className="dashicons dashicons-arrow-left-alt2"></span>
 						</button> ) : null }
 
-						{ editSlide }
+						{ editSlideButton }
+
+						{ thumbnailOptionsButton }
 
 						<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
 							deleteSlide()
@@ -254,7 +279,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 				)
 			}
 
-			const editSlide = (
+			const editSlideButton = (
 				<MediaUpload
 					media={ slide.id }
 					onSelect={ ( media ) => {
@@ -264,7 +289,10 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 							caption: media.caption,
 							description: media.description,
 							alt: media.alt,
-							thumbnail: media.sizes.thumbnail.url
+							thumbnail: media.sizes.thumbnail.url,
+							textColor: newSlides[i].textColor,
+							backdropColor: newSlides[i].backdropColor,
+							backdropOpacity: newSlides[i].backdropOpacity,
 						}
 						newSlides.splice(i, 1, newSlide)
 						setAttributes( { slides: newSlides } )
@@ -279,12 +307,128 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 				/>
 			)
 
-			return (
+			const thumbnailOptionsButton = (
+				<Dropdown
+					className="thumbnail-options-button"
+					contentClassName="thumbnail-options-box-container"
+					position="bottom right"
+					renderToggle={ ( { isOpen, onToggle } ) => (
+							<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ onToggle }  aria-expanded={ isOpen }>
+								<span className="dashicons dashicons-admin-generic" onClick={() => selectSlide(i)}></span>
+							</button>
+					) }
+					renderContent={ () => renderThumbnailOptionsBox() }
+				/>
+			)
+
+			const renderThumbnailOptionsBox = () => {
+
+				const renderColorControlBox = (attribute) => {
+
+					function hexToRgb(hex, alpha) {
+						if ( hex ) {
+					    hex   = hex.replace('#', '');
+					    var r = parseInt(hex.length == 3 ? hex.slice(0, 1).repeat(2) : hex.slice(0, 2), 16);
+					    var g = parseInt(hex.length == 3 ? hex.slice(1, 2).repeat(2) : hex.slice(2, 4), 16);
+					    var b = parseInt(hex.length == 3 ? hex.slice(2, 3).repeat(2) : hex.slice(4, 6), 16);
+					    if ( alpha || alpha === 0 ) {
+					      return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+					    }
+					    else {
+					      return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+					    }
+					  }
+						else {
+							if ( alpha || alpha === 0 ) {
+								let newSlides = [ ...attributes.slides ]
+								newSlides[i].backdropOpacity = 0
+								setAttributes( { slides: newSlides } )
+								return 'rgba(0, 0, 0, 0)'
+							}
+							else {
+					      return 'rgb(255, 255, 255)'
+					    }
+						}
+					}
+
+					const checkAttributeType = (attribute, value) => {
+						let newSlides = [ ...attributes.slides ]
+						if (attribute === 'backdropColor') {
+							newSlides[i][attribute] = hexToRgb(value, slide.backdropOpacity)
+						}
+						else {
+							newSlides[i][attribute] = hexToRgb(value)
+						}
+						setAttributes( { slides: newSlides } )
+					}
+
+					return (
+						<div className='color-control-box' style={{padding: '10px'}}>
+							<ColorPalette
+								disableCustomColors
+								onChange={ value => checkAttributeType(attribute, value) }
+								value={attributes.slides[i][attribute]}
+							/>
+							<a class="button-link blocks-color-palette__clear" onClick={ () => setAttributes( { customColor: ! attributes.customColor } ) } type="button">
+								<div className="blocks-color-palette__item-wrapper blocks-color-palette__custom-color">
+									<span className="blocks-color-palette__custom-color-gradient" />
+								</div>
+							</a>
+							{ attributes.customColor ?
+								<ChromePicker
+									style={{width: '100%'}}
+									color={ attributes.slides[i][attribute] }
+									onChangeComplete={ color => checkAttributeType(attribute, color.hex) }
+									style={ { width: '100%' } }
+									disableAlpha
+								/>
+							: null }
+						</div>
+					)
+				}
+
+				const convertBackdropColor = (colorString, value) => {
+					let colorStringArr = colorString.split(' ')
+					colorStringArr[colorStringArr.length-1] = `${value})`
+					colorString = colorStringArr.join(' ')
+					return colorString
+				}
+
+				return (
+					<div className='thumbnail-options-box' style={{padding: '10px'}}>
+						<SelectControl
+						 label={ __("Select Color For:") }
+						 value={ attributes.colorPicker }
+						 options={ [
+							 { value: 'textColor', label: 'Text' },
+							 { value: 'backdropColor', label: 'Backdrop' }
+						 ] }
+						 onChange={ value => setAttributes( { colorPicker: value } ) }
+						/>
+						{ renderColorControlBox(attributes.colorPicker) }
+						<RangeControl
+							label={ __( "Backdrop Opacity:") }
+							value={slide.backdropOpacity}
+							onChange={ value => {
+								let newSlides = [ ...attributes.slides ]
+								newSlides[i].backdropOpacity = value
+								newSlides[i].backdropColor = convertBackdropColor(newSlides[i].backdropColor, value)
+								setAttributes( { slides: newSlides } )
+							} }
+							min={0}
+							max={1}
+							step={0.05}
+						/>
+					</div>
+				)
+			}
+
+			return ( //Finally, return value for thumbnail()
 				<Button style={{padding: '0px', height: '150px'}}>
 					<img src={slide.thumbnail} style={{margin: '1px', borderRadius: '4px'}} onClick={ () => {
 						selectSlide(i)
 					} }/>
-					{ renderThumbnailControls(editSlide) }
+					{ renderThumbnailControls(editSlideButton) }
 				</Button>
 			)
 		}
@@ -305,7 +449,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 		const renderPlainText = (field, i) => {
 			return (
 				<PlainText
-					style={ { backgroundColor: 'rgba(0,0,0,0)', textAlign: 'center',  color: '#fff' } }
+					style={ { backgroundColor: 'rgba(0,0,0,0)', textAlign: 'center',  color: attributes.slides[i].textColor } }
 					value={ attributes.slides[i][field] }
 					onChange={ value => {
 						let newSlides = [ ...attributes.slides ]
@@ -332,14 +476,14 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 										margin: 'auto',
 									}}
 									src={slide.url} alt={slide.alt}/>
-						      <div className="carousel-caption">
+						      <div className="carousel-caption" style={{backgroundColor: slide.backdropColor, borderRadius: `${attributes.backdropBorderRadius}px`}}>
 						        { attributes.showCaption ? (
-											<h3>
+											<h3 style={{color: slide.textColor}}>
 												{ renderPlainText('caption', i) }
 											</h3>
 										) : null }
 										{ attributes.showDescription ? (
-											<p>
+											<p style={{color: slide.textColor }}>
 												{ renderPlainText('description', i) }
 											</p>
 										) : null }

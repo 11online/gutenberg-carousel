@@ -24,7 +24,7 @@ function gutenberg_carousel_cgb_block_assets() {
 	// Styles.
 	wp_enqueue_style(
 		'gutenberg_carousel-block-bootstrap-css', // Handle.
-		plugins_url( '/bootstrap.min.css', dirname( __FILE__ ) ), // Block editor CSS.
+		plugins_url( '/bootstrap.css', dirname( __FILE__ ) ), // Block editor CSS.
 		array( 'wp-edit-blocks' ) // Dependency to include the CSS after it.
 		// filemtime( plugin_dir_path( __FILE__ ) . 'editor.css' ) // Version: filemtime — Gets file modification time.
 	);
