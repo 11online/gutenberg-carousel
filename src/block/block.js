@@ -581,14 +581,14 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 										margin: 'auto',
 									}}
 									src={slide.url} alt={slide.alt}/>
-						      <div className="carousel-caption">
+						      <div className="carousel-caption" style={{borderRadius: attributes.backdropBorderRadius, backgroundColor: slide.backdropColor}}>
 						        { attributes.showCaption ? (
-											<h3 style={{color: 'white'}}>
+											<h3 style={{color: slide.textColor}}>
 												{ slide.caption }
 											</h3>
 										) : null }
 										{ attributes.showDescription ? (
-											<p>
+											<p style={{color: slide.textColor}}>
 												{ slide.description }
 											</p>
 										) : null }
