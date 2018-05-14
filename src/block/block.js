@@ -98,15 +98,16 @@ let attributes = {
 	},
 };
 
-registerBlockType( 'cgb/block-gutenberg-carousel', {
+registerBlockType( 'blockparty/block-gutenberg-carousel', {
 	// Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
-	title: __( 'Carousel' ), // Block title.
+	title: __( 'BP Carousel' ), // Block title.
 	description: __( 'Carousels work best when images share the same dimensions' ),
 	icon: 'image-flip-horizontal', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
 	category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
 	attributes: attributes,
 	keywords: [
 		__( 'Carousel' ),
+		__( 'Block Party' ),
 	],
 
 	/**
