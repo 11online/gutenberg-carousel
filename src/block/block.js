@@ -98,15 +98,16 @@ let attributes = {
 	},
 };
 
-registerBlockType( 'cgb/block-gutenberg-carousel', {
+registerBlockType( 'blockparty/block-gutenberg-carousel', {
 	// Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
-	title: __( 'Carousel' ), // Block title.
+	title: __( 'BP Carousel' ), // Block title.
 	description: __( 'Carousels work best when images share the same dimensions' ),
 	icon: 'image-flip-horizontal', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
 	category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
 	attributes: attributes,
 	keywords: [
 		__( 'Carousel' ),
+		__( 'Block Party' ),
 	],
 
 	/**
@@ -117,14 +118,14 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 	 *
 	 * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
 	 */
-	edit: function({ attributes, setAttributes, focus, setFocus, isSelected, className }) {
+	edit: function({ attributes, setAttributes, isSelected, className }) {
 
 		if(attributes.randomKey === 'carousel') {
 			const randomKey = "carousel-" + Math.floor(Math.random() * 1000);
 			setAttributes({randomKey: randomKey});
 		}
 
-		const Controls = focus ? (
+		const Controls = isSelected ? (
 			<InspectorControls>
 				<ToggleControl
 					label={ __( 'Indicators:' ) }
@@ -369,11 +370,14 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 								onChange={ value => checkAttributeType(attribute, value) }
 								value={attributes.slides[i][attribute]}
 							/>
-							<a class="button-link blocks-color-palette__clear" onClick={ () => setAttributes( { customColor: ! attributes.customColor } ) } type="button">
-								<div className="blocks-color-palette__item-wrapper blocks-color-palette__custom-color">
-									<span className="blocks-color-palette__custom-color-gradient" />
+							<div class="components-color-palette__item-wrapper components-color-palette__custom-color">
+								<div>
+									<button type="button" aria-expanded="false" class="components-color-palette__item" aria-label="Custom color picker"
+									onClick={ () => setAttributes( { customColor: ! attributes.customColor } ) }>
+										<span class="components-color-palette__custom-color-gradient"></span>
+									</button>
 								</div>
-							</a>
+							</div>
 							{ attributes.customColor ?
 								<ChromePicker
 									style={{width: '100%'}}
@@ -575,7 +579,7 @@ registerBlockType( 'cgb/block-gutenberg-carousel', {
 					    <span className="sr-only">Next</span>
 					  </a>
 					</div>
-					{ focus ?
+					{ isSelected ?
 						<div>
 							{ ThumbnailGallery }
 						</div>
