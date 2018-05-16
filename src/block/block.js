@@ -1,10 +1,3 @@
-/**
- * BLOCK: gutenberg-carousel
- *
- * Registering a basic block with Gutenberg.
- * Simple block, renders and saves the same content without any interactivity.
- */
-
 //  Import CSS.
 import './style.scss';
 import './editor.scss';
@@ -19,8 +12,8 @@ const InspectorControls = wp.blocks.InspectorControls;
 const RangeControl = wp.components.RangeControl;
 const ColorPalette = wp.blocks.ColorPalette;
 const ToggleControl = wp.components.ToggleControl;
-// const BlockControls = wp.blocks.BlockControls;
-// const AlignmentToolbar = wp.blocks.AlignmentToolbar;
+const BlockControls = wp.blocks.BlockControls;
+const BlockAlignmentToolbar = wp.blocks.BlockAlignmentToolbar;
 const Dropdown = wp.components.Dropdown;
 const PlainText = wp.blocks.PlainText;
 // const RichText = wp.blocks.PlainText;
@@ -29,6 +22,8 @@ const SelectControl = wp.components.SelectControl;
 const DropZone = wp.components.DropZone;
 const MediaUpload = wp.blocks.MediaUpload;
 const Button = wp.components.Button;
+
+const validAlignments = [ 'left', 'center', 'right', 'wide', 'full' ];
 /**
  * Register: aa Gutenberg Block.
  *
@@ -96,6 +91,9 @@ let attributes = {
 		type: 'number',
 		default: 0
 	},
+	align: {
+		type: 'string'
+	}
 };
 
 registerBlockType( 'blockparty/block-gutenberg-carousel', {
@@ -109,6 +107,13 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 		__( 'Carousel' ),
 		__( 'Block Party' ),
 	],
+
+	getEditWrapperProps( attributes ) {
+		const { align } = attributes;
+		if ( -1 !== validAlignments.indexOf( align ) ) {
+			return { 'data-align': align };
+		}
+	},
 
 	/**
 	 * The edit function describes the structure of your block in the context of the editor.
@@ -125,7 +130,15 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 			setAttributes({randomKey: randomKey});
 		}
 
-		const Controls = isSelected ? (
+		const Controls = isSelected ? [
+			<BlockControls>
+				<BlockAlignmentToolbar
+					value={ attributes.align }
+					onChange={ ( nextAlign ) => {
+						setAttributes( { align: nextAlign } );
+					} }
+				/>
+			</BlockControls>,
 			<InspectorControls>
 				<ToggleControl
 					label={ __( 'Indicators:' ) }
@@ -180,7 +193,7 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 					onChange={ value => setAttributes ( { color: value } ) }
 				/>
 			</InspectorControls>
-		) : null
+		] : null
 
 		const addSlide = (
 			<MediaUpload
@@ -420,7 +433,6 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 						s.backdropOpacity = newSlides[i].backdropOpacity
 						return s
 					})
-					console.log(changedSlides)
 					setAttributes( { slides: changedSlides } )
 				}
 
@@ -599,6 +611,12 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 	 */
 	save: function({ attributes, className }) {
 
+		const {align} = attributes;
+
+		const alignClass = align ? ` align${ align }` : null;
+
+		const classes = className + alignClass;
+
 		const renderSlides = slides => {
 			return (
 				<div className="carousel-inner" role="listbox">
@@ -650,7 +668,7 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 		}
 
 		return (
-				<div className={className} id={className+'-'+attributes.randomKey}>
+				<div className={classes} id={className+'-'+attributes.randomKey}>
 					<div id={attributes.randomKey} className="carousel slide container" data-ride="carousel" style={{margin: 'auto', width: attributes.width+'%'}} data-interval={attributes.interval * 1000}>
 
 					  { renderIndicators(attributes.slides) }
