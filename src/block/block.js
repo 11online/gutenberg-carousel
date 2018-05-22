@@ -408,7 +408,6 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 						s.backdropOpacity = newSlides[i].backdropOpacity
 						return s
 					})
-					console.log(changedSlides)
 					setAttributes( { slides: changedSlides } )
 				}
 
