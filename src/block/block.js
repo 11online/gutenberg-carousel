@@ -240,7 +240,7 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 
 			const renderThumbnailControls = (editSlideButton) => {
 				return (
-					<div className="stat-edit-buttons" style={{background: 'rgba(255,255,255,0.7)', position: 'relative', bottom: '37px', display: 'flex', justifyContent: 'space-between'}}>
+					<div className="stat-edit-buttons" style={{background: 'rgba(255,255,255,0.7)', position: 'absolute', bottom: 0, width: '100%', display: 'flex', justifyContent: 'space-between'}}>
 					{ i > 0 ? (
 						<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
 							swapSlide.left()
@@ -442,7 +442,7 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 			}
 
 			return ( //Finally, return value for thumbnail()
-				<Button style={{padding: '0px', height: '150px'}}>
+				<Button style={{padding: '0px', height: '150px', position: 'relative'}}>
 					<img src={slide.thumbnail} style={{margin: '1px', borderRadius: '4px'}} onClick={ () => {
 						selectSlide(i)
 					} }/>
@@ -597,7 +597,7 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 						      <img
 									style={{
 										width: 'auto',
-										height: attributes.height,
+										maxHeight: attributes.height,
 										margin: 'auto',
 									}}
 									src={slide.url} alt={slide.alt}/>
