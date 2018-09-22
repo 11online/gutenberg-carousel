@@ -14,21 +14,9 @@ import ChromePicker from 'react-color';
 
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
-const TextControl = wp.components.TextControl;
-const InspectorControls = wp.blocks.InspectorControls;
-const RangeControl = wp.components.RangeControl;
-const ColorPalette = wp.blocks.ColorPalette;
-const ToggleControl = wp.components.ToggleControl;
-// const BlockControls = wp.blocks.BlockControls;
-// const AlignmentToolbar = wp.blocks.AlignmentToolbar;
-const Dropdown = wp.components.Dropdown;
-const PlainText = wp.blocks.PlainText;
-// const RichText = wp.blocks.PlainText;
-// const ColorPalette = wp.blocks.ColorPalette;
-const SelectControl = wp.components.SelectControl;
-const DropZone = wp.components.DropZone;
-const MediaUpload = wp.blocks.MediaUpload;
-const Button = wp.components.Button;
+const { InspectorControls, ColorPalette, PlainText, MediaUpload } = wp.editor;
+const { TextControl, RangeControl, ToggleControl, Dropdown, SelectControl, Button } = wp.components;
+
 /**
  * Register: aa Gutenberg Block.
  *
@@ -252,7 +240,7 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 
 			const renderThumbnailControls = (editSlideButton) => {
 				return (
-					<div className="stat-edit-buttons" style={{background: 'rgba(255,255,255,0.7)', position: 'relative', bottom: '37px', display: 'flex', justifyContent: 'space-between'}}>
+					<div className="stat-edit-buttons" style={{background: 'rgba(255,255,255,0.7)', position: 'absolute', bottom: 0, width: '100%', display: 'flex', justifyContent: 'space-between'}}>
 					{ i > 0 ? (
 						<button  style={{paddingLeft: "2px", paddingRight: "2px"}} className="components-button components-icon-button" onClick={ () => {
 							swapSlide.left()
@@ -420,7 +408,6 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 						s.backdropOpacity = newSlides[i].backdropOpacity
 						return s
 					})
-					console.log(changedSlides)
 					setAttributes( { slides: changedSlides } )
 				}
 
@@ -455,7 +442,7 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 			}
 
 			return ( //Finally, return value for thumbnail()
-				<Button style={{padding: '0px', height: '150px'}}>
+				<Button style={{padding: '0px', height: '150px', position: 'relative'}}>
 					<img src={slide.thumbnail} style={{margin: '1px', borderRadius: '4px'}} onClick={ () => {
 						selectSlide(i)
 					} }/>
@@ -610,7 +597,7 @@ registerBlockType( 'blockparty/block-gutenberg-carousel', {
 						      <img
 									style={{
 										width: 'auto',
-										height: attributes.height,
+										maxHeight: attributes.height,
 										margin: 'auto',
 									}}
 									src={slide.url} alt={slide.alt}/>
