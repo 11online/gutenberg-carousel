@@ -6,7 +6,6 @@
  */
 
 //  Import CSS.
-import './style.scss';
 import './editor.scss';
 
 import React from 'react';

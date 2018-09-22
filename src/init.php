@@ -56,6 +56,12 @@ function gutenberg_carousel_cgb_editor_assets() {
 		array( 'wp-edit-blocks' ) // Dependency to include the CSS after it.
 		// filemtime( plugin_dir_path( __FILE__ ) . 'editor.css' ) // Version: filemtime — Gets file modification time.
 	);
+	wp_enqueue_style(
+		'gutenberg_carousel-block-editor-css', // Handle.
+		plugins_url( 'dist/blocks.editor.build.css', dirname( __FILE__ ) ), // Block editor CSS.
+		array( 'wp-edit-blocks' ) // Dependency to include the CSS after it.
+		// filemtime( plugin_dir_path( __DIR__ ) . 'dist/blocks.editor.build.css' ) // Version: filemtime — Gets file modification time.
+	);
 	wp_enqueue_script(
 		'gutenberg_carousel-bootstrap-js', // Handle.
 		plugins_url( '/bootstrap.min.js', dirname( __FILE__ ) ), // Block.build.js: We register the block here. Built with Webpack.

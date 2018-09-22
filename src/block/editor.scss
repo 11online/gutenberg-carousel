@@ -5,3 +5,21 @@
  * which makes it higher in priority.
  */
 
+.wp-block-blockparty-block-gutenberg-carousel {
+	textarea::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+	  color: white;
+	  text-shadow: 0 0 5px #000;
+	}
+	textarea::-moz-placeholder { /* Firefox 19+ */
+	  color: white;
+	  text-shadow: 0 0 5px #000;
+	}
+	textarea:-ms-input-placeholder { /* IE 10+ */
+	  color: white;
+	  text-shadow: 0 0 5px #000;
+	}
+	textarea:-moz-placeholder { /* Firefox 18- */
+	  color: white;
+	  text-shadow: 0 0 5px #000;
+	}
+}
