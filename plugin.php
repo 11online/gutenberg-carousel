@@ -4,7 +4,7 @@
  * Plugin Name: Carousel Block	
  * Plugin URI: https://11online.us/	
  * Description: Carousel Block for Gutenberg	
- * Author: Iwpeifer	
+ * Author: Iwpeifer, ericdebelak	
  * Author URI: https://11online.us/	
  * Version: 1.0.0	
  * License: GPL2+	
